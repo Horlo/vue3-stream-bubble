@@ -1,0 +1,143 @@
+/* src/components/StreamBubble/style.css */
+
+/* ========== StreamBubble 主容器 ========== */
+.stream-bubble {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.stream-bubble--ai {
+  justify-content: flex-start;
+}
+
+.stream-bubble--user {
+  justify-content: flex-end;
+}
+
+/* ========== 气泡内容区 ========== */
+.stream-bubble__content {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.stream-bubble--ai .stream-bubble__content {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-top-left-radius: 4px;
+}
+
+.stream-bubble--user .stream-bubble__content {
+  background: #3b82f6;
+  color: #ffffff;
+  border-top-right-radius: 4px;
+}
+
+/* ========== Markdown 渲染器 ========== */
+.md-renderer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ========== Token 淡入动画 ========== */
+@keyframes md-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.md-token-new {
+  animation: md-fade-in 150ms ease-out;
+}
+
+/* ========== 段落 ========== */
+.md-paragraph {
+  margin: 0;
+}
+
+/* ========== 代码块 ========== */
+.md-code-block {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.md-code-block code {
+  background: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ========== 行内代码 ========== */
+.md-inline-code {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+.stream-bubble--user .md-inline-code {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== 标题 ========== */
+h1.md-heading, h2.md-heading, h3.md-heading,
+h4.md-heading, h5.md-heading, h6.md-heading {
+  margin: 0;
+  font-weight: 600;
+}
+
+h1.md-heading { font-size: 1.5em; }
+h2.md-heading { font-size: 1.3em; }
+h3.md-heading { font-size: 1.15em; }
+h4.md-heading, h5.md-heading, h6.md-heading { font-size: 1em; }
+
+/* ========== 列表 ========== */
+.md-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.md-list-item {
+  margin: 4px 0;
+}
+
+/* ========== 引用块 ========== */
+.md-blockquote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid #d1d5db;
+  color: #6b7280;
+}
+
+.stream-bubble--user .md-blockquote {
+  border-left-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========== 链接 ========== */
+.md-renderer a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.stream-bubble--user .md-renderer a {
+  color: #bfdbfe;
+}
