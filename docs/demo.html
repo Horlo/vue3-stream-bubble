@@ -1,0 +1,166 @@
+<!-- docs/demo.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue3 Stream Bubble Demo</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="../dist/index.umd.js"></script>
+  <link rel="stylesheet" href="../dist/style.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    .chat-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 400px;
+    }
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    h1 {
+      text-align: center;
+      color: #1f2937;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Vue3 Stream Bubble Demo</h1>
+
+    <div class="controls">
+      <button @click="startAI" :disabled="isStreaming">开始 AI 回复</button>
+      <button @click="addUser">添加用户消息</button>
+      <button @click="reset">重置</button>
+    </div>
+
+    <div class="chat-container">
+      <stream-bubble
+        v-for="(msg, i) in messages"
+        :key="i"
+        :content="msg.content"
+        :role="msg.role"
+        :streaming="msg.streaming"
+        @complete="onComplete(i)"
+      />
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue
+
+    // UMD 构建的组件挂载到全局
+    const StreamBubble = window.Vue3StreamBubble?.default || window.Vue3StreamBubble
+
+    const sampleMarkdown = `# 欢迎使用 StreamBubble
+
+这是一个**流式气泡组件**，支持 Markdown 渲染。
+
+## 功能特点
+
+- 支持 *斜体* 和 **粗体**
+- 支持 \`inline code\`
+- 支持代码块：
+
+\`\`\`javascript
+const greeting = "Hello World";
+console.log(greeting);
+\`\`\`
+
+> 这是一个引用块
+
+1. 有序列表项 1
+2. 有序列表项 2
+
+- 无序列表项
+- 另一个列表项
+
+[链接示例](https://example.com)`
+
+    createApp({
+      setup() {
+        const messages = ref([])
+        const isStreaming = ref(false)
+
+        function startAI() {
+          isStreaming.value = true
+          messages.value.push({
+            role: 'ai',
+            content: '',
+            streaming: true
+          })
+
+          let index = 0
+          const interval = setInterval(() => {
+            if (index >= sampleMarkdown.length) {
+              clearInterval(interval)
+              const lastMsg = messages.value[messages.value.length - 1]
+              if (lastMsg.role === 'ai') {
+                lastMsg.streaming = false
+              }
+              isStreaming.value = false
+              return
+            }
+
+            const lastMsg = messages.value[messages.value.length - 1]
+            lastMsg.content += sampleMarkdown[index]
+            index++
+          }, 30)
+        }
+
+        function addUser() {
+          messages.value.push({
+            role: 'user',
+            content: '你好！请介绍一下这个功能。',
+            streaming: false
+          })
+        }
+
+        function reset() {
+          messages.value = []
+          isStreaming.value = false
+        }
+
+        function onComplete(index) {
+          console.log('消息', index, '流式显示完成')
+        }
+
+        return {
+          messages,
+          isStreaming,
+          startAI,
+          addUser,
+          reset,
+          onComplete
+        }
+      },
+      components: { StreamBubble }
+    }).mount('#app')
+  </script>
+</body>
+</html>
