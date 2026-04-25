@@ -19,15 +19,21 @@ const props = defineProps<{
 const highlightedHtml = ref<string | null>(null)
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let disposed = false
+let generation = 0 // 竞态计数器，丢弃过期的高亮结果
 
 watch(
   () => [props.token.value, props.token.lang],
   () => {
     highlightedHtml.value = null
     if (debounceTimer) clearTimeout(debounceTimer)
+    const currentGen = ++generation
     debounceTimer = setTimeout(async () => {
-      if (disposed) return
-      highlightedHtml.value = await highlightCode(props.token.value, props.token.lang)
+      if (disposed || currentGen !== generation) return
+      const result = await highlightCode(props.token.value, props.token.lang)
+      // 只有当前代次仍为最新时才设置结果
+      if (currentGen === generation && !disposed) {
+        highlightedHtml.value = result
+      }
     }, HIGHLIGHT_DEBOUNCE_MS)
   },
   { immediate: true }

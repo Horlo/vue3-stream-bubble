@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "Vue3 流式气泡组件库，支持 Markdown 渲染",
   "type": "module",
-  "main": "./dist/index.umd.js",
+  "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.umd.js",
       "types": "./dist/index.d.ts"
+    },
+    "./vite": {
+      "import": "./dist/vite.mjs",
+      "types": "./dist/vite.d.ts"
     }
   },
   "files": [
@@ -25,6 +28,7 @@
   },
   "dependencies": {
     "remark": "^15.0.0",
+    "remark-gfm": "^4.0.1",
     "shiki": "^4.0.2",
     "spark-md5": "^3.0.2",
     "unified": "^11.0.0"

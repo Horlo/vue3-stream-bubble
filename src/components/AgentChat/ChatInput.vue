@@ -11,11 +11,13 @@
         rows="1"
         @input="autoResize"
         @keydown.enter.exact.prevent="handleSend"
+        @compositionstart="onCompositionStart"
+        @compositionend="onCompositionEnd"
       />
       <button
         class="agent-chat__send-btn"
         :disabled="disabled || !inputText.trim()"
-        @click="handleSend"
+        @click="handleSend()"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13" />
@@ -43,6 +45,15 @@ const emit = defineEmits<{
 
 const inputText = ref('')
 const textareaRef = ref<HTMLTextAreaElement>()
+const composing = ref(false)
+
+function onCompositionStart() {
+  composing.value = true
+}
+
+function onCompositionEnd() {
+  composing.value = false
+}
 
 function autoResize() {
   const el = textareaRef.value
@@ -57,7 +68,8 @@ function resetHeight() {
   el.style.height = 'auto'
 }
 
-function handleSend() {
+function handleSend(event?: KeyboardEvent) {
+  if (composing.value || event?.isComposing) return
   const text = inputText.value.trim()
   if (!text || props.disabled) return
   emit('send', text)

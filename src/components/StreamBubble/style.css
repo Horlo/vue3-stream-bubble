@@ -152,3 +152,41 @@ h4.md-heading, h5.md-heading, h6.md-heading { font-size: 1em; }
 .stream-bubble--user .md-renderer a {
   color: #bfdbfe;
 }
+
+/* ========== 表格 ========== */
+.md-table-wrapper {
+  overflow-x: auto;
+  margin: 4px 0;
+}
+
+.md-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+}
+
+.md-table th,
+.md-table td {
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.md-table th {
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.stream-bubble--user .md-table th,
+.stream-bubble--user .md-table td {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.stream-bubble--user .md-table th {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ========== 原始 HTML ========== */
+.md-html {
+  margin: 0;
+}

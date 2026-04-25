@@ -12,10 +12,13 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: './src/index.ts',
+      entry: {
+        index: './src/index.ts',
+        vite: './src/vite.ts'
+      },
       name: 'Vue3StreamBubble',
-      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'umd.js'}`,
-      formats: ['es', 'umd']
+      fileName: (format, entryName) => `${entryName}.mjs`,
+      formats: ['es']
     },
     cssCodeSplit: true, // 提取 CSS 到单独文件
     rollupOptions: {

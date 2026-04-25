@@ -1,4 +1,5 @@
 import { remark } from 'remark'
+import remarkGfm from 'remark-gfm'
 import type { Root, Nodes } from 'mdast'
 
 /**
@@ -7,6 +8,11 @@ import type { Root, Nodes } from 'mdast'
 export function parseMarkdown(content: string): Nodes[] {
   if (!content.trim()) return []
 
-  const tree = remark().parse(content) as Root
-  return tree.children || []
+  try {
+    const tree = remark().use(remarkGfm).parse(content) as Root
+    return tree.children || []
+  } catch (e) {
+    console.warn('[vue3-stream-bubble] Markdown 解析失败:', e)
+    return []
+  }
 }

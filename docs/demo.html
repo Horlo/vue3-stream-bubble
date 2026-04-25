@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vue3 Stream Bubble & AgentChat Demo</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="../dist/index.umd.js"></script>
+  <script type="importmap">
+    { "imports": { "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js" } }
+  </script>
   <link rel="stylesheet" href="../dist/index.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -146,6 +147,7 @@
           </div>
           <div class="agent-chat-demo">
             <agent-chat
+              ref="agentChatRef"
               :messages="agentMessages"
               :loading="agentLoading"
               :disabled="agentStreaming"
@@ -160,11 +162,12 @@
     </div>
   </div>
 
-  <script>
-    const { createApp, ref } = Vue
-    const StreamBubble = window.Vue3StreamBubble?.default || window.Vue3StreamBubble
-    const AgentChat = window.Vue3StreamBubble?.AgentChat
-    const ChunkedStream = window.Vue3StreamBubble?.ChunkedStream
+  <script type="module">
+    import { createApp, ref } from 'vue'
+    import * as Vue3StreamBubbleModule from '../dist/index.mjs'
+    const StreamBubble = Vue3StreamBubbleModule.default || Vue3StreamBubbleModule.StreamBubble
+    const AgentChat = Vue3StreamBubbleModule.AgentChat
+    const ChunkedStream = Vue3StreamBubbleModule.ChunkedStream
 
     // ---- 示例内容 ----
     const samples = {
@@ -338,6 +341,7 @@ const stream = new ChunkedStream({
         }
 
         // ===== AgentChat Demo =====
+        const agentChatRef = ref(null)
         const agentMessages = ref([])
         const agentLoading = ref(false)
         const agentStreaming = ref(false)
@@ -350,20 +354,24 @@ const stream = new ChunkedStream({
           setTimeout(() => {
             agentLoading.value = false
             const aiId = ++agentMsgId
-            agentMessages.value.push({
+
+            // 通过 addMessage 添加 AI 消息
+            agentChatRef.value?.addMessage({
               id: aiId,
               role: 'ai',
               content: '',
               streaming: true,
               username: 'AI 助手'
             })
-            const msg = agentMessages.value[agentMessages.value.length - 1]
 
+            // 通过 updateMessage 流式更新内容
             createStreamingSimulation(
               replyText,
-              (accumulated) => { msg.content = accumulated },
-              () => {
-                msg.streaming = false
+              (accumulated) => {
+                agentChatRef.value?.updateMessage(aiId, { content: accumulated })
+              },
+              (accumulated) => {
+                agentChatRef.value?.updateMessage(aiId, { content: accumulated, streaming: false })
                 agentStreaming.value = false
               }
             )
@@ -371,7 +379,8 @@ const stream = new ChunkedStream({
         }
 
         function onAgentSend(content) {
-          agentMessages.value.push({
+          // 通过 addMessage 添加用户消息
+          agentChatRef.value?.addMessage({
             id: ++agentMsgId,
             role: 'user',
             content,
@@ -388,7 +397,9 @@ const stream = new ChunkedStream({
             '支持哪些 Markdown 功能？'
           ]
           const q = questions[agentMessages.value.filter(m => m.role === 'user').length % questions.length]
-          agentMessages.value.push({
+
+          // 通过 addMessage 添加用户消息
+          agentChatRef.value?.addMessage({
             id: ++agentMsgId,
             role: 'user',
             content: q,
@@ -412,7 +423,7 @@ const stream = new ChunkedStream({
         return {
           activeTab,
           messages, isStreaming, startAI, addUser, reset, onComplete,
-          agentMessages, agentLoading, agentStreaming,
+          agentChatRef, agentMessages, agentLoading, agentStreaming,
           onAgentSend, onAgentComplete, agentQuickReply, agentReset
         }
       },

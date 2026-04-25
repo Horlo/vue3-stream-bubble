@@ -39,7 +39,6 @@ const bubbleClass = computed(() => ({
 
 function onComplete() {
   emit('complete')
-  props.onComplete?.()
 }
 </script>
 

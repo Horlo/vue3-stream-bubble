@@ -8,7 +8,8 @@ export default StreamBubble
 // 工具类导出
 export { ChunkedStream } from './utils/streamSource'
 export { FileChunker } from './utils/fileChunker'
-export { FileChunkerVite } from './utils/fileChunker.vite'
+// FileChunkerVite 依赖 import.meta.url（Vite 特有），从独立入口导出
+// 使用方式: import { FileChunkerVite } from 'vue3-stream-bubble/vite'
 
 // 类型导出
 export type { StreamBubbleProps, MarkdownToken, TokenWithKey } from './components/StreamBubble/types'

@@ -12,18 +12,14 @@
 
 <script setup lang="ts">
 import type { Blockquote } from 'mdast'
-import Paragraph from './Paragraph.vue'
-import List from './List.vue'
+import { tokenComponents } from './index'
+import FallbackBlock from './FallbackBlock.vue'
 
 defineProps<{
   token: Blockquote
 }>()
 
 function getComponent(type: string) {
-  const map: Record<string, any> = {
-    paragraph: Paragraph,
-    list: List,
-  }
-  return map[type] || 'div'
+  return tokenComponents[type] || FallbackBlock
 }
 </script>

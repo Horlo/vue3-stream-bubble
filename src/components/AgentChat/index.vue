@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import ChatMessage from './ChatMessage.vue'
 import ChatInput from './ChatInput.vue'
 import type { AgentChatProps } from './types'
@@ -66,32 +66,65 @@ defineSlots<{
 const messagesRef = ref<HTMLElement>()
 const isNearBottom = ref(true)
 
-const hasStreaming = computed(() => {
-  return props.messages.some(m => m.streaming)
-})
-
 function onScroll() {
   const el = messagesRef.value
   if (!el) return
   isNearBottom.value = el.scrollTop + el.clientHeight >= el.scrollHeight - 50
 }
 
-function scrollToBottom() {
-  const el = messagesRef.value
-  if (!el) return
-  el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+/**
+ * 滚动到底部
+ */
+function scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+  nextTick(() => {
+    const el = messagesRef.value
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior })
+  })
 }
 
+/**
+ * 添加一条新消息，并在接近底部时自动滚动
+ * @param message - 完整的消息对象
+ */
+function addMessage(message: import('./types').AgentMessage) {
+  props.messages.push(message)
+  if (isNearBottom.value) {
+    scrollToBottom()
+  }
+}
+
+/**
+ * 根据消息 ID 更新消息内容，并在接近底部时自动滚动
+ * 适用于流式场景：父组件每次收到新 chunk 后调用此方法
+ * @param id - 消息唯一标识
+ * @param patch - 需要更新的字段（支持 content、streaming 等）
+ */
+function updateMessage(
+  id: string | number,
+  patch: Partial<Omit<import('./types').AgentMessage, 'id'>>
+) {
+  const msg = props.messages.find((m) => m.id === id)
+  if (msg) {
+    Object.assign(msg, patch)
+    if (isNearBottom.value) {
+      scrollToBottom()
+    }
+  }
+}
+
+// 监听消息数量变化（新增/删除消息），自动滚动到底部
 watch(
-  () => props.messages,
+  () => props.messages.length,
   () => {
-    if (isNearBottom.value || hasStreaming.value) {
+    if (isNearBottom.value) {
       scrollToBottom()
     }
   },
-  { deep: true, flush: 'post' }
+  { flush: 'post' }
 )
 
+// loading 状态变化时滚动
 watch(
   () => props.loading,
   (val) => {
@@ -101,6 +134,9 @@ watch(
   },
   { flush: 'post' }
 )
+
+// 暴露方法供父组件调用
+defineExpose({ addMessage, updateMessage, scrollToBottom })
 </script>
 
 <style>

@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import type { ListItem } from 'mdast'
-import Paragraph from './Paragraph.vue'
-import List from './List.vue'
+import { tokenComponents } from './index'
+import FallbackBlock from './FallbackBlock.vue'
 
 defineOptions({
   name: 'MdListItem'
@@ -24,10 +24,6 @@ defineProps<{
 }>()
 
 function getComponent(type: string) {
-  const map: Record<string, any> = {
-    paragraph: Paragraph,
-    list: List, // 支持嵌套列表
-  }
-  return map[type] || 'span'
+  return tokenComponents[type] || FallbackBlock
 }
 </script>
