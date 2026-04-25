@@ -20,6 +20,7 @@ export interface FileChunkerOptions {
   chunkSize?: number
   isUploaded?: (index: number, fileHash: string) => Promise<boolean>
   onChunkUploaded?: (index: number, fileHash: string) => void
+  onUploadProgress?: (uploaded: number, skipped: number, total: number) => void
   onAllUploaded?: (result: UploadResult) => void
 }
 
@@ -358,6 +359,7 @@ export class FileChunker {
         if (uploaded) {
           skippedChunks.push(chunk.index)
           this._options.onChunkUploaded?.(chunk.index, fileHash)
+          this._options.onUploadProgress?.(uploadedChunks.length, skippedChunks.length, totalChunks)
           continue
         }
       }
@@ -365,6 +367,7 @@ export class FileChunker {
       await uploadFn(chunk, fileHash, totalChunks)
       uploadedChunks.push(chunk.index)
       this._options.onChunkUploaded?.(chunk.index, fileHash)
+      this._options.onUploadProgress?.(uploadedChunks.length, skippedChunks.length, totalChunks)
     }
 
     const result: UploadResult = {

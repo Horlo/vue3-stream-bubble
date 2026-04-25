@@ -106,6 +106,7 @@ export class FileChunkerVite {
         if (uploaded) {
           skippedChunks.push(chunk.index)
           this._options.onChunkUploaded?.(chunk.index, fileHash)
+          this._options.onUploadProgress?.(uploadedChunks.length, skippedChunks.length, totalChunks)
           continue
         }
       }
@@ -113,6 +114,7 @@ export class FileChunkerVite {
       await uploadFn(chunk, fileHash, totalChunks)
       uploadedChunks.push(chunk.index)
       this._options.onChunkUploaded?.(chunk.index, fileHash)
+      this._options.onUploadProgress?.(uploadedChunks.length, skippedChunks.length, totalChunks)
     }
 
     const result: UploadResult = { fileHash, totalChunks, uploadedChunks, skippedChunks }
