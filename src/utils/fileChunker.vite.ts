@@ -85,14 +85,6 @@ export class FileChunkerVite {
     }
   }
 
-  async hashAndSlice(
-    onHashProgress?: (percent: number) => void,
-    signal?: AbortSignal,
-  ): Promise<{ hash: string; chunks: ChunkResult[] }> {
-    const hash = await this.hash(onHashProgress, signal)
-    return { hash, chunks: this.slice() }
-  }
-
   async upload(uploadFn: UploadFn, signal?: AbortSignal): Promise<UploadResult> {
     this._assertAlive()
 
