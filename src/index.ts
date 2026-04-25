@@ -8,6 +8,7 @@ export default StreamBubble
 // 工具类导出
 export { ChunkedStream } from './utils/streamSource'
 export { FileChunker } from './utils/fileChunker'
+export { FileChunkerVite } from './utils/fileChunker.vite'
 
 // 类型导出
 export type { StreamBubbleProps, MarkdownToken, TokenWithKey } from './components/StreamBubble/types'
