@@ -1,0 +1,201 @@
+/* src/components/AgentChat/style.css */
+
+/* ========== AgentChat 主容器 ========== */
+.agent-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ========== 消息滚动区 ========== */
+.agent-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* ========== 空状态 ========== */
+.agent-chat__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ========== 单条消息行 ========== */
+.agent-chat__message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.agent-chat__message:last-child {
+  margin-bottom: 0;
+}
+
+.agent-chat__message--ai {
+  flex-direction: row;
+}
+
+.agent-chat__message--user {
+  flex-direction: row-reverse;
+}
+
+/* ========== 头像 ========== */
+.agent-chat__avatar-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 36px;
+}
+
+.agent-chat__avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.agent-chat__avatar-fallback {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.agent-chat__message--ai .agent-chat__avatar-fallback {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.agent-chat__message--user .agent-chat__avatar-fallback {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* ========== 用户名 ========== */
+.agent-chat__username {
+  font-size: 12px;
+  color: #6b7280;
+  max-width: 36px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ========== 气泡容器 ========== */
+.agent-chat__bubble {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========== 加载指示器 ========== */
+.agent-chat__loading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  margin-top: 8px;
+}
+
+.agent-chat__loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: agent-chat-bounce 1.4s ease-in-out infinite;
+}
+
+.agent-chat__loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.agent-chat__loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes agent-chat-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========== 输入区域 ========== */
+.agent-chat__input-area {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px;
+}
+
+.agent-chat__input-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.agent-chat__textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: inherit;
+  outline: none;
+  min-height: 38px;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: border-color 0.15s;
+}
+
+.agent-chat__textarea:focus {
+  border-color: #3b82f6;
+}
+
+.agent-chat__textarea:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.agent-chat__send-btn {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.agent-chat__send-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.agent-chat__send-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

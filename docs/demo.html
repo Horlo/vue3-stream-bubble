@@ -4,144 +4,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vue3 Stream Bubble Demo</title>
+  <title>Vue3 Stream Bubble & AgentChat Demo</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="../dist/index.umd.js"></script>
   <link rel="stylesheet" href="../dist/index.css">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f9fafb;
+      background: #f0f2f5;
+      min-height: 100vh;
+      padding: 24px;
     }
-    .chat-container {
+    .demo-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #1f2937;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .demo-tabs {
+      display: flex;
+      gap: 0;
       background: white;
-      border-radius: 12px;
+      border-radius: 10px 10px 0 0;
+      border-bottom: 2px solid #e5e7eb;
+      overflow: hidden;
+    }
+    .demo-tab {
+      flex: 1;
+      padding: 12px 0;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: -2px;
+      border-radius: 0;
+      transition: color .2s, border-color .2s;
+    }
+    .demo-tab:hover { color: #1f2937; background: none; }
+    .demo-tab--active {
+      color: #3b82f6;
+      border-bottom-color: #3b82f6;
+      background: none;
+    }
+    .demo-body {
+      background: white;
+      border-radius: 0 0 10px 10px;
       padding: 20px;
-      min-height: 400px;
     }
     .controls {
-      margin: 20px 0;
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
     }
-    button {
-      padding: 10px 20px;
+    .btn {
+      padding: 8px 18px;
       border: none;
       border-radius: 6px;
       background: #3b82f6;
       color: white;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background .15s;
     }
-    button:hover {
-      background: #2563eb;
+    .btn:hover { background: #2563eb; }
+    .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn--outline {
+      background: transparent;
+      color: #3b82f6;
+      border: 1px solid #3b82f6;
     }
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
+    .btn--outline:hover { background: #eff6ff; }
+    .bubble-area {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 360px;
+      max-height: 500px;
+      overflow-y: auto;
     }
-    h1 {
-      text-align: center;
-      color: #1f2937;
+    .agent-chat-demo {
+      height: 500px;
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <h1>Vue3 Stream Bubble Demo</h1>
+    <div class="demo-wrapper">
+      <h1>Vue3 Stream Bubble Demo</h1>
 
-    <div class="controls">
-      <button @click="startAI" :disabled="isStreaming">开始 AI 回复</button>
-      <button @click="addUser">添加用户消息</button>
-      <button @click="reset">重置</button>
-    </div>
+      <div class="demo-tabs">
+        <button
+          class="demo-tab"
+          :class="{ 'demo-tab--active': activeTab === 'bubble' }"
+          @click="activeTab = 'bubble'"
+        >StreamBubble</button>
+        <button
+          class="demo-tab"
+          :class="{ 'demo-tab--active': activeTab === 'agent' }"
+          @click="activeTab = 'agent'"
+        >AgentChat</button>
+      </div>
 
-    <div class="chat-container">
-      <stream-bubble
-        v-for="(msg, i) in messages"
-        :key="i"
-        :content="msg.content"
-        :role="msg.role"
-        :streaming="msg.streaming"
-        @complete="onComplete(i)"
-      />
+      <div class="demo-body">
+
+        <!-- StreamBubble Demo -->
+        <div v-show="activeTab === 'bubble'">
+          <div class="controls">
+            <button class="btn" @click="startAI('basic')" :disabled="isStreaming">基础 Markdown</button>
+            <button class="btn" @click="startAI('code')" :disabled="isStreaming">代码高亮</button>
+            <button class="btn" @click="addUser">用户消息</button>
+            <button class="btn btn--outline" @click="reset">重置</button>
+          </div>
+          <div class="bubble-area">
+            <stream-bubble
+              v-for="(msg, i) in messages"
+              :key="i"
+              :content="msg.content"
+              :role="msg.role"
+              :streaming="msg.streaming"
+              @complete="onComplete(i)"
+            />
+          </div>
+        </div>
+
+        <!-- AgentChat Demo -->
+        <div v-show="activeTab === 'agent'">
+          <div class="controls">
+            <button class="btn" @click="agentQuickReply" :disabled="agentStreaming">模拟提问</button>
+            <button class="btn btn--outline" @click="agentReset">重置</button>
+          </div>
+          <div class="agent-chat-demo">
+            <agent-chat
+              :messages="agentMessages"
+              :loading="agentLoading"
+              :disabled="agentStreaming"
+              input-placeholder="输入消息，按 Enter 发送..."
+              @send="onAgentSend"
+              @complete="onAgentComplete"
+            />
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
   <script>
     const { createApp, ref } = Vue
-
-    // UMD 构建的组件挂载到全局
     const StreamBubble = window.Vue3StreamBubble?.default || window.Vue3StreamBubble
+    const AgentChat = window.Vue3StreamBubble?.AgentChat
+    const ChunkedStream = window.Vue3StreamBubble?.ChunkedStream
 
-    const sampleMarkdown = `# 欢迎使用 StreamBubble
+    // ---- 示例内容 ----
+    const samples = {
+      basic: `# 欢迎使用 StreamBubble
 
-这是一个**流式气泡组件**，支持 Markdown 渲染。
+这是一个**流式气泡组件**，支持完整的 Markdown 渲染。
 
 ## 功能特点
 
-- 支持 *斜体* 和 **粗体**
-- 支持 \`inline code\`
-- 支持代码块：
+- 支持 *斜体* 和 **粗体** 文本
+- 支持 \`inline code\` 行内代码
+- 支持有序和无序列表
+
+### 引用与嵌套
+
+> 这是一段引用文字
+> 可以跨越多行
+
+1. 第一项
+2. 第二项
+   - 嵌套无序子项
+   - 另一个子项
+3. 第三项
+
+---
+
+[访问示例链接](https://example.com)`,
+
+      code: `## 代码高亮示例
+
+下面展示不同语言的代码块渲染：
 
 \`\`\`javascript
-const greeting = "Hello World";
-console.log(greeting);
+async function fetchStream(url) {
+  const res = await fetch(url);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    process(decoder.decode(value));
+  }
+}
 \`\`\`
 
-> 这是一个引用块
+\`\`\`python
+class ChunkedBuffer:
+    def __init__(self, chunk_size=20):
+        self.chunk_size = chunk_size
+        self.buffer = ""
 
-1. 有序列表项 1
-2. 有序列表项 2
+    def push(self, text: str):
+        self.buffer += text
+        yield from self._flush()
 
-- 无序列表项
-- 另一个列表项
+    def _flush(self):
+        while len(self.buffer) >= self.chunk_size:
+            yield self.buffer[:self.chunk_size]
+            self.buffer = self.buffer[self.chunk_size:]
+\`\`\`
 
-[链接示例](https://example.com)`
+行内代码示例：\`const stream = new ChunkedStream()\``,
 
+      agent: `你好！我是 AI 助手，很高兴为你服务。
+
+我可以帮助你解答各种问题。以下是我能做的事情：
+
+1. **代码解释** — 分析和解释代码片段
+2. **文档编写** — 撰写技术文档和注释
+3. **问题排查** — 帮助定位和解决 Bug
+
+\`\`\`typescript
+import { AgentChat, ChunkedStream } from 'vue3-stream-bubble'
+
+const stream = new ChunkedStream({
+  onChunk(chunk, accumulated) {
+    message.content = accumulated
+  },
+  onComplete(accumulated) {
+    message.streaming = false
+  }
+})
+\`\`\`
+
+有什么我可以帮助你的吗？`
+    }
+
+    /**
+     * 使用 ChunkedStream 模拟流式输出
+     * 通过 push() 分批喂入文本，组件按 chunk 更新视图
+     */
+    function createStreamingSimulation(text, onUpdate, onDone) {
+      const stream = new ChunkedStream({
+        onChunk(_chunk, accumulated) {
+          onUpdate(accumulated)
+        },
+        onComplete(accumulated) {
+          onDone(accumulated)
+        }
+      })
+
+      let pos = 0
+      const chunkSizes = [8, 12, 5, 18, 10, 15, 6, 20, 9, 14]
+      let sizeIdx = 0
+
+      const timer = setInterval(() => {
+        if (pos >= text.length) {
+          clearInterval(timer)
+          stream.done()
+          return
+        }
+        const size = chunkSizes[sizeIdx % chunkSizes.length]
+        sizeIdx++
+        const chunk = text.slice(pos, pos + size)
+        stream.push(chunk)
+        pos += size
+      }, 50)
+
+      return () => clearInterval(timer)
+    }
+
+    // ---- App ----
     createApp({
       setup() {
+        const activeTab = ref('bubble')
+
+        // ===== StreamBubble Demo =====
         const messages = ref([])
         const isStreaming = ref(false)
+        let cancelCurrent = null
 
-        function startAI() {
+        function startAI(type) {
+          if (isStreaming.value) return
           isStreaming.value = true
-          messages.value.push({
-            role: 'ai',
-            content: '',
-            streaming: true
-          })
+          messages.value.push({ role: 'ai', content: '', streaming: true })
+          const msg = messages.value[messages.value.length - 1]
 
-          let index = 0
-          const interval = setInterval(() => {
-            if (index >= sampleMarkdown.length) {
-              clearInterval(interval)
-              const lastMsg = messages.value[messages.value.length - 1]
-              if (lastMsg.role === 'ai') {
-                lastMsg.streaming = false
-              }
+          cancelCurrent = createStreamingSimulation(
+            samples[type] || samples.basic,
+            (accumulated) => { msg.content = accumulated },
+            () => {
+              msg.streaming = false
               isStreaming.value = false
-              return
             }
-
-            const lastMsg = messages.value[messages.value.length - 1]
-            lastMsg.content += sampleMarkdown[index]
-            index++
-          }, 30)
+          )
         }
 
         function addUser() {
+          const userTexts = [
+            '你好！请介绍一下这个功能。',
+            '支持哪些 Markdown 语法？',
+            '代码高亮是怎么实现的？'
+          ]
           messages.value.push({
             role: 'user',
-            content: '你好！请介绍一下这个功能。',
+            content: userTexts[messages.value.filter(m => m.role === 'user').length % userTexts.length],
             streaming: false
           })
         }
 
         function reset() {
+          cancelCurrent?.()
+          cancelCurrent = null
           messages.value = []
           isStreaming.value = false
         }
@@ -150,16 +337,86 @@ console.log(greeting);
           console.log('消息', index, '流式显示完成')
         }
 
+        // ===== AgentChat Demo =====
+        const agentMessages = ref([])
+        const agentLoading = ref(false)
+        const agentStreaming = ref(false)
+        let agentMsgId = 0
+
+        function simulateAgentReply(replyText) {
+          agentLoading.value = true
+          agentStreaming.value = true
+
+          setTimeout(() => {
+            agentLoading.value = false
+            const aiId = ++agentMsgId
+            agentMessages.value.push({
+              id: aiId,
+              role: 'ai',
+              content: '',
+              streaming: true,
+              username: 'AI 助手'
+            })
+            const msg = agentMessages.value[agentMessages.value.length - 1]
+
+            createStreamingSimulation(
+              replyText,
+              (accumulated) => { msg.content = accumulated },
+              () => {
+                msg.streaming = false
+                agentStreaming.value = false
+              }
+            )
+          }, 600)
+        }
+
+        function onAgentSend(content) {
+          agentMessages.value.push({
+            id: ++agentMsgId,
+            role: 'user',
+            content,
+            streaming: false,
+            username: '用户'
+          })
+          simulateAgentReply(samples.agent)
+        }
+
+        function agentQuickReply() {
+          const questions = [
+            '请介绍一下这个组件库',
+            'ChunkedStream 怎么使用？',
+            '支持哪些 Markdown 功能？'
+          ]
+          const q = questions[agentMessages.value.filter(m => m.role === 'user').length % questions.length]
+          agentMessages.value.push({
+            id: ++agentMsgId,
+            role: 'user',
+            content: q,
+            streaming: false,
+            username: '用户'
+          })
+          simulateAgentReply(samples.agent)
+        }
+
+        function onAgentComplete(messageId) {
+          console.log('AgentChat 消息', messageId, '流式显示完成')
+        }
+
+        function agentReset() {
+          agentMessages.value = []
+          agentLoading.value = false
+          agentStreaming.value = false
+          agentMsgId = 0
+        }
+
         return {
-          messages,
-          isStreaming,
-          startAI,
-          addUser,
-          reset,
-          onComplete
+          activeTab,
+          messages, isStreaming, startAI, addUser, reset, onComplete,
+          agentMessages, agentLoading, agentStreaming,
+          onAgentSend, onAgentComplete, agentQuickReply, agentReset
         }
       },
-      components: { StreamBubble }
+      components: { StreamBubble, AgentChat }
     }).mount('#app')
   </script>
 </body>
